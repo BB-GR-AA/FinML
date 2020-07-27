@@ -1,2 +1,2 @@
-# FinML
-Applications of machine learning to financial analysis and quantitative finance.
+# Financial Machine Learning
+A protfolio of projects completed for fun and self-learning.
