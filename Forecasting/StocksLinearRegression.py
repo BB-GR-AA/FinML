@@ -3,7 +3,6 @@ Forecasting of stock market using linear regression implemented with Pytorch.
 Visualization of the training process with TensorBoard.
 '''
 
-#import os.path
 import sys
 sys.path.append('../')
 import FinML
