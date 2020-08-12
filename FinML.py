@@ -11,3 +11,7 @@ def GetHistoricalData_AV(API_Key, symbol='IBM'):
     data.columns = ['open','high','low','close','volume']
     data.sort_values(by='date', ascending=True, inplace=True)
     return data
+
+def standardize(data):
+    ''' Center a 1-D numpy array to the mean and element wise scale to unit variance.'''
+    return (data - data.mean()) / data.std()	
