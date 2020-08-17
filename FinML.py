@@ -13,5 +13,5 @@ def GetHistoricalData_AV(API_Key, symbol='IBM'):
     return data
 
 def standardize(data):
-    ''' Center a 1-D numpy array to the mean and element wise scale to unit variance.'''
-    return (data - data.mean()) / data.std()	
+    ''' Center data to the mean and element wise scale to unit variance.'''
+    return (data - data.mean()) / data.std()
