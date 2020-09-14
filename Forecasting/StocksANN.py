@@ -44,7 +44,7 @@ class ANN(nn.Module):
 ### Device and hyperparameters ###
 
 device = torch.device('cpu') # Can change to gpu if available.
-in_size = 21 # Number of days on which the prediction is based.
+in_size = 21 # Number of days on which the prediction is based (features).
 out_size = 1 # Number of days to be predicted.
 learning_rate = 0.001 # step size
 batch_size = 32 # https://stats.stackexchange.com/questions/164876/tradeoff-batch-size-vs-number-of-iterations-to-train-a-neural-network
@@ -66,6 +66,8 @@ num_epoch = 1 # 1 epoch means the network has seen the complete data set (Seen a
 #    ie. For 1,000 sample points and batch_size = 500, it will take two iterations to do one epoch.
 
 # In this case we want something like this:
+#   X is of size: number_samples-by-number_features
+#   Y is of size: number_samples-by-1
 #  [0,1,2]      [3]
 #  [1,2,3]      [4]
 #  [2,3,4]   =  [5]
@@ -85,7 +87,7 @@ num_epoch = 1 # 1 epoch means the network has seen the complete data set (Seen a
 class StockDataset(Dataset): # Training/testing sets as parameters. Move to FinML.
     def __init__(self):
         # data = # Load data
-        self.len = data.shape[0]
+        self.n_samples = data.shape[0]
         self.x_data = # torch tensor
         self.y_data = # torch tensor
         
@@ -93,8 +95,11 @@ class StockDataset(Dataset): # Training/testing sets as parameters. Move to FinM
         return self.x_data[index], self.y_data[index] 
     
     def __len__(self):
-        return self.len 
+        return self.n_samples 
 
+def halve_dataset(dataset): # Move to FinML
+    ''' Returns the upper and lower halves of a data set.'''
+    return dataset[:len(dataset)//2], dataset[len(dataset)//2:]
 
 # Load custom dataset
 # read csv
@@ -105,12 +110,18 @@ train_dataset, test_dataset = halve_dataset(data)
 # Object for DataLoader
 train_dataset = StockDataset(train_dataset)
 test_dataset = StockDataset(test_dataset)
+first_data_train = train_dataset[0]
+features, targets = first_data_train
+print(features, targets)
 
 # DataLoader
 train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=False, num_workers=1) # Iterable.
 test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False, num_workers=1) # Iterable.
 
-
+dataiter = iter(train_loader)
+data = dataiter.next()
+features, labels = data
+print(features, targets)
 
 ### Train/test model ###
 
@@ -122,6 +133,10 @@ criterion = nn.MSELoss()
 optimizer = optim.Adam(model.parameters(), lr=learning_rate) 
 
 # Training cycle.
+total_samples = lena(dataset)
+n_iter = math.ceil(total_samples/batch_size)
+print(total_samples, n_iter)
+
 # for epoch in range(num_epoch):
 #     # Loop over all batches in the training loader.
 #     for batch_idx, (data, targets) in enumerate(train_loader): # Get more familiar witht his line.
