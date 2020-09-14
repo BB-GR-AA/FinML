@@ -64,42 +64,30 @@ num_epoch = 1 # 1 epoch means the network has seen the complete data set (Seen a
 #    - batch size: Number of training examples in one fwd/bckwd pass. Higher batch size, more memory.
 #    - iterations: Number of passes each using [batch size] number of examples. One pass = one fwd + one bckwd.
 #    ie. For 1,000 sample points and batch_size = 500, it will take two iterations to do one epoch.
+
+# In this case we want something like this:
+#  [0,1,2]      [3]
+#  [1,2,3]      [4]
+#  [2,3,4]   =  [5]
+#  [3,4,5]      [6]
+#  [. . .]      [.]
+#  [-4,-3,-2]   [-1]
+# 
+# This method makes the amount of data much much much higher (if we chose to explicitly build matrix)
+# Need to think of a better solution. Pointers? Iterators? Look for already made solution? 
+# Will post on StackOverflow
+# Will explicitly build for now.
     
-def halve_dataset(dataset): # Move to FinML
-    ''' Returns the upper and lower halves of a data set.'''
-    return dataset[:len(dataset)//2], dataset[len(dataset)//2:]
 
-def make_input_output(dataset, q=21, r=1, s=1): # Move to FinML
-    ''' Sliding window size q, output size r and step size s.
-    default values: q = 21, r = 3, s = 1.'''
-    # To do: stress test this function. 
-    # To do: Define constraints on q and r (ie size in relation to data set size).
-    # assert len(dataset) > 
-    #assert 1<r, "Window must contain at least two samples: (1<r)."
-    # assert 0<s and s<=r, "Sliding parameter must be: (0<s<=r)."
-    # this has to be compatible with trainloader. see if available time series data.
-    # Has to be divisible by window size, otherwise deal with it.
-    # https://www.youtube.com/watch?v=mUueSPmcOBc&ab_channel=deeplizard
-    # https://www.youtube.com/watch?v=PXOzkkB5eH0&ab_channel=PythonEngineer
-    # https://www.youtube.com/watch?v=sCsPzVumtR8&ab_channel=PyTorch
-    # https://pytorch.org/docs/stable/data.html
-    # https://pytorch.org/docs/stable/data.html
-    # https://www.kaggle.com/pinocookie/pytorch-dataset-and-dataloader
-    return (inputs,outputs)
 
-# Custom DataLoader
+# Custom Dataset class for DataLoader
 
-# Porbaly split, make input and output first and then make the CustomDataset object
-class CustomDataset(Dataset): # Check DataSet class. Maybe also input training/testing sets. Move to FinML.
+class StockDataset(Dataset): # Training/testing sets as parameters. Move to FinML.
     def __init__(self):
-        data = # Load data
+        # data = # Load data
         self.len = data.shape[0]
-        self.data_x = # torch tensor
+        self.x_data = # torch tensor
         self.y_data = # torch tensor
-        file_name = '../Data/ANET_2014-06-06_2020-08-18.csv'
-        stock = pd.read_csv(file_name, index_col=0) # use 'date' as index column.
-        close = FinML.standardize(stock['close'])  # I dont think needed here since only one type of feature.
-        close = torch.tensor(close) # create tensor from series. 
         
     def __getitem__(self, index):
         return self.x_data[index], self.y_data[index] 
@@ -107,19 +95,20 @@ class CustomDataset(Dataset): # Check DataSet class. Maybe also input training/t
     def __len__(self):
         return self.len 
 
-# Ultimately want this (repeat for test half). Refactor where possible.   
+
+# Load custom dataset
+# read csv
 
 # Split into train and test data.
-train_dataset, _ = halve_dataset(close)
-
-# Make input and output
-train_dataset = make_input_output(train_dataset, q=21, r=1, s=1) # Get samples and labels for training.
+train_dataset, test_dataset = halve_dataset(data)
 
 # Object for DataLoader
-train_dataset = customDataset(train_dataset)
+train_dataset = StockDataset(train_dataset)
+test_dataset = StockDataset(test_dataset)
 
-# 
+# DataLoader
 train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=False, num_workers=1) # Iterable.
+test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False, num_workers=1) # Iterable.
 
 
 
@@ -133,13 +122,12 @@ criterion = nn.MSELoss()
 optimizer = optim.Adam(model.parameters(), lr=learning_rate) 
 
 # Training cycle.
-for epoch in range(num_epoch):
-    # Loop over all batches in the training loader.
-    for batch_idx, (data, targets) in enumerate(train_loader): # Get more familiar witht his line.
-        inputs, labels = data # get the inputs
-        inputs, labels = Variable(inputs), Variable(labels) # wrap them in Variable
-        print(epoch, i, "inputs", inputs.data, "labels", labels.data) # Run training process.
-
+# for epoch in range(num_epoch):
+#     # Loop over all batches in the training loader.
+#     for batch_idx, (data, targets) in enumerate(train_loader): # Get more familiar witht his line.
+#         inputs, labels = data # get the inputs
+#         inputs, labels = Variable(inputs), Variable(labels) # wrap them in Variable
+#         print(epoch, i, "inputs", inputs.data, "labels", labels.data) # Run training process.
 
 
 # # save model and import it.
