@@ -78,6 +78,7 @@ def make_input_output(dataset, q=21, r=1, s=1): # Move to FinML
     #assert 1<r, "Window must contain at least two samples: (1<r)."
     # assert 0<s and s<=r, "Sliding parameter must be: (0<s<=r)."
     # this has to be compatible with trainloader. see if available time series data.
+    # Has to be divisible by window size, otherwise deal with it.
     # https://www.youtube.com/watch?v=mUueSPmcOBc&ab_channel=deeplizard
     # https://www.youtube.com/watch?v=PXOzkkB5eH0&ab_channel=PythonEngineer
     # https://www.youtube.com/watch?v=sCsPzVumtR8&ab_channel=PyTorch
