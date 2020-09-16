@@ -9,7 +9,15 @@ Temporary script for creating features and targets (labels).
 import torch
 
 
-# Make data - Hankel matrix.
+# Make data - Hankel matrix.(No need)
+# Dont need Hankel, just need to create input matrix composed of window_size features by n_samples-w_s?
+# and Y vector composed of n_samples-w_s by 1.
+# For w_s consecutive prices (P_i, P_i+1, P_i+2,...,P_w_s) (these are the features
+# predict P_w_s+1 (the label/tagert)
+# After making data set of custom feautres and targets save the data set
+# Split into training and testing set at random/alternating (halves)
+# Read and cite how to split into training and testing data sets for time series.
+
 window_size=3 # Features size.
 prediction_size=1
 slide_size=1

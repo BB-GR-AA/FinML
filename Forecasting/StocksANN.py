@@ -6,6 +6,7 @@ Visualization of the training process and architecture with TensorBoard.
 Overview of Classes in Python.
 Useful tutorials: https://www.youtube.com/playlist?list=PLhhyoLH6IjfxeoooqP9rhU3HJIAVAJ3Vz
 https://docs.python.org/3/tutorial/classes.html
+Make Jupyter Notebook to document theory/method/citations and key findings.
 '''
 
 import pandas as pd
@@ -139,7 +140,7 @@ print(total_samples, n_iter)
 
 # for epoch in range(num_epoch):
 #     # Loop over all batches in the training loader.
-#     for batch_idx, (data, targets) in enumerate(train_loader): # Get more familiar witht his line.
+#     for batch_idx, (features, targets) in enumerate(train_loader): # Get more familiar witht his line.
 #         inputs, labels = data # get the inputs
 #         inputs, labels = Variable(inputs), Variable(labels) # wrap them in Variable
 #         print(epoch, i, "inputs", inputs.data, "labels", labels.data) # Run training process.
@@ -147,5 +148,5 @@ print(total_samples, n_iter)
 
 # # save model and import it.
 # # Plot of predicted and oserved data.
-# # Next: LSTM, AR, Deep AR, esemble.
+# # Next: LSTM, AR, Deep AR, ensemble.
 
