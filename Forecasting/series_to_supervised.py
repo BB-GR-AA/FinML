@@ -1,22 +1,29 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon Sep 14 10:11:17 2020
-Temporary script for creating features and targets (labels).
+Script for reframing time series datasets as a supervised learning problem.
 
-@author: Gonzalo
+Given a time series s(t), create a data set composed of inputs/outputs for supervised learning.
+This data set d = {(x_i, y_i)}, where i=0,1,2,...,N will be used to build the model:
+        s_hat(t) = f(s(t-1), s(t-2), ..., s(t-l))), such that s_hat(t) ~ s(t).
+
+
+Terminology:
+Raw data - s(t)
+data set for deep learning - d(t)
+Feature vector - x_i = s(t-1), s(t-2), ..., s(t-l)
+Target - y_i
+Lag - l
+Forecast - s_hat(t)
+
+Implementation:
+- Explicitly build Hankel matrix (n_rows by l+1) from s(t)
+- Split into X, Y
+- Save the data set with appropriate name
+- Move function to FinML.py
 """
 
 import torch
 
-
-# Make data - Hankel matrix.(No need)
-# Dont need Hankel, just need to create input matrix composed of window_size features by n_samples-w_s?
-# and Y vector composed of n_samples-w_s by 1.
-# For w_s consecutive prices (P_i, P_i+1, P_i+2,...,P_w_s) (these are the features
-# predict P_w_s+1 (the label/tagert)
-# After making data set of custom feautres and targets save the data set
-# Split into training and testing set at random/alternating (halves)
-# Read and cite how to split into training and testing data sets for time series.
 
 window_size=3 # Features size.
 prediction_size=1
@@ -24,7 +31,7 @@ slide_size=1
 D = torch.arange(22.) # Entire time series.
 X = torch.reshape(D[:-1], (-1, window_size))
 Y = D[torch.arange(window_size, D[-1]+1, slide_size, dtype=int)]
-
+https://machinelearningmastery.com/convert-time-series-supervised-learning-problem-python/
 
 
 # file_name = '../Data/ANET_2014-06-06_2020-08-18.csv'

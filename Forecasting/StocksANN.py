@@ -1,12 +1,17 @@
 '''
-Note: Inkscape is great for diagrams.
-Stock (close) price forecast using a simple ANN implemented with Pytorch.
-Training with google collab/cloud (IBM, google, AWS, Microsoft). Project next couple of months.
-Visualization of the training process and architecture with TensorBoard.
-Overview of Classes in Python.
-Useful tutorials: https://www.youtube.com/playlist?list=PLhhyoLH6IjfxeoooqP9rhU3HJIAVAJ3Vz
-https://docs.python.org/3/tutorial/classes.html
-Make Jupyter Notebook to document theory/method/citations and key findings.
+Stock daily close price prediction (Univariate one-step forecasting) using a simple ANN.
+
+Training:  google collab/cloud (IBM, google, AWS, Microsoft).
+Visualization: TensorBoard.
+Diagrams: inkscape.
+Summary: Jupyter Notebook (theory/method, citations and key findings)
+
+To do:
+- Overview of Classes in Python https://docs.python.org/3/tutorial/classes.html
+- Read on choice of number of layers and neurons. Simplest for now (one hidden layer).
+- Shuffle vs alternate for time series/stocks (read and cite)
+- Read Adam optimizer
+- Useful tutorials: https://www.youtube.com/playlist?list=PLhhyoLH6IjfxeoooqP9rhU3HJIAVAJ3Vz
 '''
 
 import pandas as pd
@@ -22,9 +27,6 @@ from torch.utils.data import Dataset, DataLoader # For easier data set managemen
 
 
 ### Model architecture ###
-
-# To do: Read on choice of number of layers and neurons. Simplest for now (one hidden layer).
-# To do: Review classes in Python.
 
 class ANN(nn.Module):
     # Inherit from nn.Module, the base class for all nn models.
@@ -55,9 +57,6 @@ num_epoch = 1 # 1 epoch means the network has seen the complete data set (Seen a
 
 ### Load data, pre-processing and train/test sets ###
 
-# To do: Start with halves then try alternating and random train test windows.
-# To do: Save the test/train sets.
-
 # Want batches because its not efficient to compute the gradient using the whole data set, for large sets.
 # Training goes through each batch at once, compute that gradient and update weights.
 # More formally:
@@ -75,13 +74,7 @@ num_epoch = 1 # 1 epoch means the network has seen the complete data set (Seen a
 #  [3,4,5]      [6]
 #  [. . .]      [.]
 #  [-4,-3,-2]   [-1]
-# 
-# This method makes the amount of data much much much higher (if we chose to explicitly build matrix)
-# Need to think of a better solution. Pointers? Iterators? Look for already made solution? 
-# Will post on StackOverflow
-# Will explicitly build for now.
     
-
 
 # Custom Dataset class for DataLoader
 
@@ -103,7 +96,8 @@ def halve_dataset(dataset): # Move to FinML
     return dataset[:len(dataset)//2], dataset[len(dataset)//2:]
 
 # Load custom dataset
-# read csv
+
+# Shuffle dataset.
 
 # Split into train and test data.
 train_dataset, test_dataset = halve_dataset(data)
@@ -124,19 +118,20 @@ data = dataiter.next()
 features, labels = data
 print(features, targets)
 
+
+
 ### Train/test model ###
 
 # To do: def train(Din,Dout,model,dataLoader,optimizer,loss,epochs) and add to FinML.py
-# To do: Read Adam.
 
-model = ANN(in_size,out_size).to(device)
-criterion = nn.MSELoss()
-optimizer = optim.Adam(model.parameters(), lr=learning_rate) 
+# model = ANN(in_size,out_size).to(device)
+# criterion = nn.MSELoss()
+# optimizer = optim.Adam(model.parameters(), lr=learning_rate) 
 
 # Training cycle.
-total_samples = lena(dataset)
-n_iter = math.ceil(total_samples/batch_size)
-print(total_samples, n_iter)
+# total_samples = lena(dataset)
+# n_iter = math.ceil(total_samples/batch_size)
+# print(total_samples, n_iter)
 
 # for epoch in range(num_epoch):
 #     # Loop over all batches in the training loader.
