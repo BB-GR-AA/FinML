@@ -8,7 +8,7 @@ Summary: Jupyter Notebook (theory/method, citations and key findings)
 
 To do:
 - make sata set
-- data loader https://medium.com/noumena/how-does-dataloader-work-in-pytorch-8c363a8ee6c1    
+- data loader https://medium.com/noumena/how-does-dataloader-work-in-pytorch-8c363a8ee6c1 move to FinML
 - training function
 - https://www.youtube.com/watch?v=Jy4wM2X21u0&list=PLhhyoLH6IjfxeoooqP9rhU3HJIAVAJ3Vz&index=4&t=571s&ab_channel=AladdinPersson
 - Overview of Classes in Python https://docs.python.org/3/tutorial/classes.html
@@ -125,26 +125,11 @@ class ANN(nn.Module):
 # __getitem__()
 # __len__() 
 
-class StockDataset(Dataset): # Training/testing sets as parameters. Move to FinML.
-    def __init__(self):
-        # data = # Load data
-        self.n_samples = data.shape[0]
-        self.x_data = # torch tensor
-        self.y_data = # torch tensor
-        
-    def __getitem__(self, index):
-        return self.x_data[index], self.y_data[index] 
-    
-    def __len__(self):
-        return self.n_samples 
-
 def halve_dataset(dataset): # Move to FinML
     ''' Returns the upper and lower halves of a data set.'''
     return dataset[:len(dataset)//2], dataset[len(dataset)//2:]
 
 # Load custom dataset
-
-# Shuffle dataset.
 
 # Split into train and test data.
 train_dataset, test_dataset = halve_dataset(data)
