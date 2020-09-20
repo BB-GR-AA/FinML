@@ -27,3 +27,18 @@ def PlotStuff(X,Y,model=None,leg=False):
 
     plt.legend()
     plt.show()
+
+def plot_trainning(X, Y, model, epoch, leg=True, x_label='x', y_label='y'):
+    ''' This function produces a plot of the predicted values and the training dataset.'''
+    plt.plot(X.numpy(), model(X).detach().numpy(), label=('epoch ' + str(epoch)))
+    plt.plot(X.numpy(), Y.numpy(), 'r', label='training dataset')
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+    if leg == True:
+        plt.legend()
+    else:
+        pass
+    plt.show()
+    
+    
+    

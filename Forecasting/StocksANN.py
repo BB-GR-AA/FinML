@@ -75,7 +75,7 @@ class ANN(nn.Module):
 #             #cumulative loss 
 #             total+=loss.item() 
 #         error.append(total)
-#         # Tensorboard
+#         # Tensorboard + plot training
 #     return error
 
 
