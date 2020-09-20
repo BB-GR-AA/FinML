@@ -1,8 +1,9 @@
 '''
 Module with useful tools.
 '''
-import os
+
 from alpha_vantage.timeseries import TimeSeries
+import matplotlib.pyplot as plt 
 
 def GetHistoricalData_AV(API_Key, symbol='IBM'):
     '''Historical stock data as a pandas DataFrame. '''
@@ -15,3 +16,14 @@ def GetHistoricalData_AV(API_Key, symbol='IBM'):
 def standardize(data):
     ''' Center data to the mean and element wise scale to unit variance.'''
     return (data - data.mean()) / data.std()
+
+def PlotStuff(X,Y,model=None,leg=False):
+    
+    plt.plot(X[Y==0].numpy(),Y[Y==0].numpy(),'or',label='training points y=0 ' )
+    plt.plot(X[Y==1].numpy(),Y[Y==1].numpy(),'ob',label='training points y=1 ' )
+
+    if model!=None:
+        plt.plot(X.numpy(),model(X).detach().numpy(),label='Neural Network ')
+
+    plt.legend()
+    plt.show()
