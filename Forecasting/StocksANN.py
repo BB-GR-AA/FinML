@@ -4,7 +4,8 @@ Stock daily close price prediction (Univariate one-step forecasting) using a sim
 Training:  google collab/cloud (IBM, google, AWS, Microsoft).
 Visualization: TensorBoard.
 Diagrams: inkscape.
-Summary: Jupyter Notebook (theory/method, citations and key findings)
+Report: Jupyter Notebook (theory/method, citations and key findings).
+Summary: Medium - Towards Data Science.
 
 To do:
 - make sata set
@@ -14,15 +15,22 @@ To do:
 - Overview of Classes in Python https://docs.python.org/3/tutorial/classes.html
 - Watch a youtube video on classes
 - Read on choice of number of layers and neurons. Simplest for now (one hidden layer).
-- Shuffle vs alternate for time series/stocks (read and cite)
+- Shuffle for time series/stocks (read and cite). Shuffle training but not validation, read and cite.
 - Read Adam optimizer
 - finish useful tutorials: https://www.youtube.com/playlist?list=PLhhyoLH6IjfxeoooqP9rhU3HJIAVAJ3Vz
+- Tensorboard
+    - https://www.tensorflow.org/tensorboard/get_started
+    - https://pytorch.org/tutorials/intermediate/tensorboard_tutorial.html
+    - https://www.youtube.com/watch?v=VJW9wU-1n18&list=PLqnslRFeH2UrcDBWF5mfPGpqQDSta6VK4&index=17&t=0s&ab_channel=PythonEngineer
+- Next: LSTM -> ARIMA/VARIMA -> Deep AR -> Ensemble. 
+    - https://ieeexplore.ieee.org/document/8673351	
 '''
 
 import torch # Package with data structures for tensors and their mathematical operations.
 import torch.nn as nn # Package for building and training neural networks.
 import torch.nn.functional as F # All the functions from the torch.nn library (ie activations, conv, etc).
 import torch.optim # Optimization algorithms
+import torchsummary
 from torch.utils.data import Dataset, DataLoader # For easier data set management.
 import pandas as pd
 import numpy as np
@@ -31,7 +39,6 @@ sys.path.append('../')
 import FinML
 
   
-
 ### Model architecture ###
 
 class ANN(nn.Module):
@@ -52,13 +59,6 @@ class ANN(nn.Module):
 
 ### Training function ### (move to FinML.py)
 
-# for epoch in range(num_epoch):
-#     # Loop over all batches in the training loader.
-#     for batch_idx, (features, targets) in enumerate(train_loader): # Get more familiar witht his line.
-#         inputs, labels = data # get the inputs
-#         inputs, labels = Variable(inputs), Variable(labels) # wrap them in Variable
-#         print(epoch, i, "inputs", inputs.data, "labels", labels.data) # Run training process.
-
 # zip() creaters an iterator of tuples,  the i-th tuple being (x_i, y_i).
 # enumerate() creates an iterator of tuples,  the i-th tuple being (counter_i, item_i). 
 
@@ -74,26 +74,34 @@ class ANN(nn.Module):
 #             optimizer.zero_grad()
 #             #cumulative loss 
 #             total+=loss.item() 
-#         error.append(total)
-#         # Tensorboard + plot training
+#         error.append(total)         
 #     return error
-
-
-# def train(model,criterion,train_loader,optimizer,epochs=5, display=True):
-#     cost = []
+       
+# def train(model, criterion, train_loader, validation_loader, optimizer, epochs=5, display_batch=false):
+#     i = 0
+#     useful_stuff = {'training_loss': [],'validation MSE?': []}  
 #     for epoch in range(epochs):
-#         total = 0
-#         for batch_idx, (y,x) in enumerate(train_loader):
-#             if display : 
-#               print('epoch {}, batch_idx {} , batch len {}'.format(epoch, batch_idx, len(y)))
-#             loss = criterion(model(x),y)
+#         for batch_idx, (x, y) in enumerate(train_loader): 
+#             if display_batch : 
+#               print('epoch {}, batch_idx {} , batch len {}'.format(epoch, batch_idx, len(y)))    
 #             optimizer.zero_grad()
+#             z = model(x.view(-1, 28 * 28))
+#             loss = criterion(z, y)
 #             loss.backward()
 #             optimizer.step()
-#             total += loss.item()
-#         cost.append(total)
-#     return cost             
-        
+#              #loss for every iteration
+#             useful_stuff['training_loss'].append(loss.data.item())
+#         correct = 0
+#         # Tensorboard + plot training
+#         for x, y in validation_loader:
+#             #validation 
+#             z = model(x.view(-1, 28 * 28))
+#             _, label = torch.max(z, 1)
+#             correct += (label == y).sum().item()
+#         accuracy = 100 * (correct / len(validation_dataset))
+#         useful_stuff['MSE?'].append(accuracy)
+#         # Tensorboard + plot training
+#     return useful_stuff 
 
 
 ### Load data, pre-processing and train/test sets ###
@@ -145,7 +153,7 @@ print(features, targets)
 
 # What exactly does DataLoader return?
 # I think it returns an iterator of tuples (x,y) in batches.
-train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=False, num_workers=1) # Iterable.
+train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True, num_workers=1) # Iterable.
 test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False, num_workers=1) # Iterable.
 
 dataiter = iter(train_loader)
@@ -175,5 +183,5 @@ print(features, targets)
 
 # # save model and import it.
 # # Plot of predicted and oserved data.
-# # Next: LSTM, AR, Deep AR, ensemble.
+
 
