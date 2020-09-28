@@ -51,7 +51,8 @@ class ANN(nn.Module):
     
     def forward(self,x): # Specify the layers' connections.
         # x Is the data on which the linear transformation acts.
-        x = F.relu(self.fc1(x)) # Linear and non-linear transformations in the first layer.
+        #x = F.relu(self.fc1(x)) # Linear and non-linear transformations in the first layer.
+	x = F.tanh(self.fc1(x)) # Read paper on Notion
         x = self.fc2(x) # Linear transformations in the output layer.
         # No compeling reason to use activation function in output layer. Better to chose a suitable loss function.
         return x
