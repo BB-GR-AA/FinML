@@ -30,6 +30,17 @@ def plot_trainning(X, Y, model, epoch, leg=True, x_label='x', y_label='y'):
     else:
         pass
     plt.show()
+
+def print_model_parameters(model):
+    count = 0
+    for ele in model.state_dict():
+        count += 1
+        if count % 2 != 0:
+            print ("The following are the parameters for the layer ", count // 2 + 1)
+        if ele.find("bias") != -1:
+            print("The size of bias: ", model.state_dict()[ele].size())
+        else:
+            print("The size of weights: ", model.state_dict()[ele].size())    
   
 class DataSupervised(Dataset):
     ''' Custom dataset to work with DataLoader for supervised learning.
