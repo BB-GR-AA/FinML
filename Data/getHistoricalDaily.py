@@ -1,6 +1,5 @@
 """
 Request historical daily price data for a specific ticker and to Data directory.
-Update README.
 """
 
 import os
