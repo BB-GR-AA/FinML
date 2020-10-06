@@ -1,6 +1,4 @@
 '''
-Stock daily close price prediction (Univariate one-step forecasting) using a simple ANN.
-
 Training:  google collab/cloud (IBM, google, AWS, Microsoft).
 Visualization: TensorBoard.
 Diagrams: inkscape.
@@ -8,27 +6,31 @@ Report: Jupyter Notebook (theory/method, citations and key findings).
 Summary: Medium - Towards Data Science.
 
 To do:
-- make sata set
+- supervised learning dataset (Get into single csv)
+- Dataset class
+- Training function
 - data loader https://medium.com/noumena/how-does-dataloader-work-in-pytorch-8c363a8ee6c1 move to FinML
-- training function
-- https://www.youtube.com/watch?v=Jy4wM2X21u0&list=PLhhyoLH6IjfxeoooqP9rhU3HJIAVAJ3Vz&index=4&t=571s&ab_channel=AladdinPersson
-- Overview of Classes in Python https://docs.python.org/3/tutorial/classes.html
-- Watch a youtube video on classes
-- Read on choice of number of layers and neurons. Simplest for now (one hidden layer).
-- Shuffle for time series/stocks (read and cite). Shuffle training but not validation, read and cite.
-- Read Adam optimizer
+- Shuffle training for time series/stocks (read and cite).
+- Run simplest architecture.
+- Analyze results.
+- Jupyter notebook (follow IBM notes).
+- Overview of Classes in Python https://docs.python.org/3/tutorial/classes.html + YT video.
+- Read Adam optimizer SGD with momentum (cite).
 - finish useful tutorials: https://www.youtube.com/playlist?list=PLhhyoLH6IjfxeoooqP9rhU3HJIAVAJ3Vz
 - Tensorboard
     - https://www.tensorflow.org/tensorboard/get_started
     - https://pytorch.org/tutorials/intermediate/tensorboard_tutorial.html
     - https://www.youtube.com/watch?v=VJW9wU-1n18&list=PLqnslRFeH2UrcDBWF5mfPGpqQDSta6VK4&index=17&t=0s&ab_channel=PythonEngineer
-- Next: LSTM -> ARIMA/VARIMA -> Deep AR -> Ensemble. 
+- Make wider and deeper (read and cite).
+- Compare tanh with default vs tanh with xavier vs relu with He (train all models, plot their loss and validations. (read and cite).
+- Add drop out (read and cite).Dropout: a simple way to prevent neural networks from overfitting
+- Batch normalization. Compare with dropout.
+- Next: vs ARIMA -> LSTM vs ARIMA -> Deep AR vs ARIMA -> Ensemble. 
     - https://ieeexplore.ieee.org/document/8673351	
 '''
 
 import torch # Package with data structures for tensors and their mathematical operations.
 import torch.nn as nn # Package for building and training neural networks.
-import torch.nn.functional as F # All the functions from the torch.nn library (ie activations, conv, etc).
 import torch.optim # Optimization algorithms
 import torchsummary
 from torch.utils.data import Dataset, DataLoader # For easier data set management.
@@ -42,19 +44,22 @@ import FinML
 ### Model architecture ###
 
 class ANN(nn.Module):
-    # Inherit from nn.Module, the base class for all nn models.
-    # All custom models will be a subclass of this class.
-    def __init__(self, input_size, H, forecast_size): # Define the initialization for our model (layers).
-        super(ANN,self).__init__() # Call initialization method of parent class. Super gives access to parent class.
-        self.fc1 = nn.Linear(input_size, H) # Applies linear transofrmation, bias True by default.
-        self.fc2 = nn.Linear(H, forecast_size) # Output layer.
+    # Compare tanh and relu activation functions (read, cite) 
+    # Compare PyTorch default initialization vs Xavier (read, cite)
+    # Try He initialization vs defaul for ReLu (read, cite)
+    def __init__(self, Layers):
+        super(ANN, self).__init__()        
+        for input_size, output_size in zip(Layers, Layers[1:]):
+            linear = nn.Linear(input_size, output_size)
+            self.hidden.append(linear)
     
-    def forward(self,x): # Specify the layers' connections.
-        # x Is the data on which the linear transformation acts.
-        #x = F.relu(self.fc1(x)) # Linear and non-linear transformations in the first layer.
-	x = F.tanh(self.fc1(x)) # Read paper on Notion
-        x = self.fc2(x) # Linear transformations in the output layer.
-        # No compeling reason to use activation function in output layer. Better to chose a suitable loss function.
+    def forward(self, x):
+        layers = len(self.hidden)
+        for (layer, linear_transform) in zip(range(layers), self.hidden):
+            if layer < layers - 1:
+                x = torch.tanh(linear_transform(x))
+            else:
+                x = linear_transform(x)
         return x
 
 
@@ -131,17 +136,22 @@ class ANN(nn.Module):
 # All custom data sets that are fed into the class DataLoader must:
 # interith the Dataset class ... but why?    
 # constructor __init__()
+        #if train != True:
+            #return even rows
+#        else:
+            # return odd rows 
+#         self.y is the last column
 # __getitem__()
 # __len__() 
 
-def halve_dataset(dataset): # Move to FinML
-    ''' Returns the upper and lower halves of a data set.'''
-    return dataset[:len(dataset)//2], dataset[len(dataset)//2:]
+#def halve_dataset(dataset): # Move to FinML
+#    ''' Returns the upper and lower halves of a data set.'''
+#    return dataset[:len(dataset)//2], dataset[len(dataset)//2:]
 
 # Load custom dataset
 
 # Split into train and test data.
-train_dataset, test_dataset = halve_dataset(data)
+# train_dataset, test_dataset = halve_dataset(data)
 
 # Object for DataLoader
 train_dataset = StockDataset(train_dataset)
