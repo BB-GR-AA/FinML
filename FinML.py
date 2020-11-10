@@ -1,17 +1,20 @@
 '''
-Module with useful fucntions and classes.
+Module with useful functions and classes.
 '''
 
 import matplotlib.pyplot as plt 
+import pandas as pd
 import torch
 import torch.nn as nn
 from alpha_vantage.timeseries import TimeSeries
-#from torch.utils.data import Dataset
+from torch.utils.data import Dataset
+import sys
+
 
 class ANN(nn.Module):
     '''
         MLP with tanh activation function for the hidden layers and linear transformation
-        for the output layer, boht by default.
+        for the output layer by default.
         
         Layers (list): Numbers of neurons in each layer.
     ''' 
@@ -32,6 +35,36 @@ class ANN(nn.Module):
             else:
                 x = linear_transform(x)
         return x
+    
+    
+class DataSupervised(Dataset):
+    '''
+        Custom dataset to work with DataLoader for supervised learning.
+        
+        file_name (str): Path to csv file.
+        target_cols (int): Number of steps (forecasts), one by default (last column).
+        train (bool): Train (odd samples) or test split (even samples), True by default.
+    '''    
+    
+    def __init__(self, file_name, target_cols=1, train=True):
+        
+        stock_supervised = pd.read_csv(file_name).values
+                
+        if train:
+            self.X = torch.FloatTensor(stock_supervised[::2,:-target_cols])
+            self.Y = torch.FloatTensor(stock_supervised[::2,-target_cols])
+        else:
+            self.X = torch.FloatTensor(stock_supervised[1::2,:-target_cols])
+            self.Y = torch.FloatTensor(stock_supervised[1::2,-target_cols])
+            
+        self.n_samples = self.X.shape[0]
+        
+    def __getitem__(self, index):
+        return self.X[index], self.Y[index] 
+    
+    def __len__(self):
+        return self.n_samples     
+
 
 def GetHistoricalData_AV(API_Key, symbol='IBM'):
     '''Historical stock data as a pandas DataFrame. '''
@@ -41,9 +74,11 @@ def GetHistoricalData_AV(API_Key, symbol='IBM'):
     data.sort_values(by='date', ascending=True, inplace=True)
     return data
 
+
 def standardize(data):
     ''' Center data to the mean and element wise scale to unit variance.'''
     return (data - data.mean()) / data.std()
+
 
 def plot_trainning(X, Y, model, epoch, leg=True, x_label='x', y_label='y'):
     ''' This function produces a plot of the predicted values and the training dataset.'''
@@ -56,6 +91,7 @@ def plot_trainning(X, Y, model, epoch, leg=True, x_label='x', y_label='y'):
     else:
         pass
     plt.show()
+
 
 def print_model_parameters(model):
     count = 0
