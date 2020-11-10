@@ -2,10 +2,36 @@
 Module with useful fucntions and classes.
 '''
 
-from alpha_vantage.timeseries import TimeSeries
 import matplotlib.pyplot as plt 
 import torch
-from torch.utils.data import Dataset
+import torch.nn as nn
+from alpha_vantage.timeseries import TimeSeries
+#from torch.utils.data import Dataset
+
+class ANN(nn.Module):
+    '''
+        MLP with tanh activation function for the hidden layers and linear transformation
+        for the output layer, boht by default.
+        
+        Layers (list): Numbers of neurons in each layer.
+    ''' 
+    
+    def __init__(self, Layers):
+        super(ANN, self).__init__()  
+        self.hidden = nn.ModuleList()
+        
+        for input_size, output_size in zip(Layers, Layers[1:]):
+            linear = nn.Linear(input_size, output_size)
+            self.hidden.append(linear)
+    
+    def forward(self, x):
+        layers = len(self.hidden)
+        for (layer, linear_transform) in zip(range(layers), self.hidden):
+            if layer < layers - 1:
+                x = torch.tanh(linear_transform(x))
+            else:
+                x = linear_transform(x)
+        return x
 
 def GetHistoricalData_AV(API_Key, symbol='IBM'):
     '''Historical stock data as a pandas DataFrame. '''
@@ -41,26 +67,7 @@ def print_model_parameters(model):
             print("The size of bias: ", model.state_dict()[ele].size())
         else:
             print("The size of weights: ", model.state_dict()[ele].size())    
-  
-class DataSupervised(Dataset):
-    ''' Custom dataset to work with DataLoader for supervised learning.
-    XY - The complete dataset as panadas dataframe.
-    feature_cols - The column indices of the features as list, all but the last column as default.
-    label_cols  - The column indices of the label as list, last column by default.'''
-    
-    def __init__(self, XY, feature_cols=None, label_cols=-1):
-        if feature_cols != None :
-            self.X = torch.tensor(XY.iloc[:,feature_cols].values) # check.view()
-        else :
-            self.X = torch.tensor(XY.iloc[:,:-1].values) # check.view()
-        self.Y = torch.tensor(XY.iloc[:,label_cols]) # check.view()
-        self.n_samples = self.X.shape[0]
-        
-    def __getitem__(self, index):
-        return self.X[index], self.Y[index] 
-    
-    def __len__(self):
-        return self.n_samples     
+      
     
     
     
