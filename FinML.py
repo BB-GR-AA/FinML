@@ -8,7 +8,6 @@ import torch
 import torch.nn as nn
 from alpha_vantage.timeseries import TimeSeries
 from torch.utils.data import Dataset
-import sys
 
 
 class ANN(nn.Module):

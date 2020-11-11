@@ -5,10 +5,10 @@ Diagrams: inkscape.
 Report: Jupyter Notebook and Medium post (theory/method/citations and key findings).
 
 To do:
+- Run simplest architecture and Analyze results.
 - Shuffle training for time series/stocks (read and cite, post stack exchange and ask literature).
 - isort
-- Run simplest architecture and Analyze results.
-- Read Adam optimizer SGD with momentum (cite).
+- Read Adam optimizer SGD with/out momentum (cite) how does it work with batches?.
 - finish useful tutorials: https://www.youtube.com/playlist?list=PLhhyoLH6IjfxeoooqP9rhU3HJIAVAJ3Vz
 - Jupyter notebook (follow IBM notes and IBM notebooks markdown).
 - Classes Python https://docs.python.org/3/tutorial/classes.html + https://www.youtube.com/playlist?list=PL-osiE80TeTsqhIuOqKhwlXsIBIdSeYtc
@@ -18,7 +18,7 @@ To do:
     - https://www.youtube.com/watch?v=VJW9wU-1n18&list=PLqnslRFeH2UrcDBWF5mfPGpqQDSta6VK4&index=17&t=0s&ab_channel=PythonEngineer
 - Change input size (cite stocks/timeseries study) Make wider and deeper (read and cite, ask stack exchange and ask literature).
 - Cite transformations to standardize (try price difference P_i-p_{i-1} (input and max min scaler ooutput) univariate time series forecasting using neural networks and implement in dataset.
-- Non-linear autoencoder.
+- Non-linear autoencoder. start saving and importing models.
 - Compare tanh with default, tanh with xavier and relu with He (train all models, plot their loss and validations. (read and cite).
 - Add drop out (read and cite).Dropout: a simple way to prevent neural networks from overfitting
 - Compare batch normalization with dropout (5.3 lab). Non-linear AE.
@@ -27,27 +27,16 @@ To do:
     - https://ieeexplore.ieee.org/document/8673351	
 '''
 
+import sys
+sys.path.append('../')
+import torch.nn as nn
+import torch.optim
 from FinML import ANN
 from FinML import DataSupervised
 from torch.utils.data import DataLoader
 
 
-### Custom Dataset and DataLoader ###   
- 
-train_dataset = DataSupervised(file_name="../Data/ANET_2014-06-06_2020-08-18_supervised_lag_21.csv")
-test_dataset = DataSupervised(file_name="../Data/ANET_2014-06-06_2020-08-18_supervised_lag_21.csv", train=False)
-
-train_loader = DataLoader(dataset=train_dataset, batch_size=32, shuffle=False)
-test_loader = DataLoader(dataset=test_dataset, batch_size=32, shuffle=False)
-
-
-### Model ###
-
-model = ANN(Layers=[train_dataset.n_samples, 10, 10, 1])
-
-
-### Training function ### (move to FinML.py)       
-
+### Training function ### (move to FinML.py)   
 def train(train_loader, validation_loader, model, criterion, optimizer, epochs=2, display_batch=False):
     """
         Make sure errors represent what you want.
@@ -55,7 +44,7 @@ def train(train_loader, validation_loader, model, criterion, optimizer, epochs=2
         Training and testing errors should be on the same scale
         Write description.
     """
-    loss = {'training loss': [],'validation error': []}   # loss at a given epoch        
+    results = {'training loss': [],'validation error': []}   # loss at a given epoch        
     for epoch in range(epochs):
          
         total = 0 # training loss for every epoch        
@@ -69,7 +58,7 @@ def train(train_loader, validation_loader, model, criterion, optimizer, epochs=2
             optimizer.step()
             total += loss.item()  # cumulative loss    
             # Tensorboard and/or plot training
-        loss['training loss'].append(total) 
+        results['training loss'].append(total) 
         
         total = 0 # validation loss for every epoch        
         for batch_idx, (x, y) in enumerate(validation_loader):
@@ -79,9 +68,31 @@ def train(train_loader, validation_loader, model, criterion, optimizer, epochs=2
             total += criterion(model(x), y).item()  # cumulative loss 
             # Tensorboard and/or plot training
         #loss['validation error'].append((100 * (total / len(validation_loader)))          
-        loss['validation error'].append(total)          
+        results['validation error'].append(total)          
           
-    return loss 
+    return results 
+
+
+### Custom Dataset and DataLoader ###   
+ 
+train_dataset = DataSupervised(file_name="../Data/ANET_2014-06-06_2020-08-18_supervised_lag_21.csv")
+validation_dataset = DataSupervised(file_name="../Data/ANET_2014-06-06_2020-08-18_supervised_lag_21.csv", train=False)
+
+train_loader = DataLoader(dataset=train_dataset, batch_size=32, shuffle=False)
+validation_loader = DataLoader(dataset=validation_dataset, batch_size=32, shuffle=False)
 
 
 ### Train and Test the Model ###
+
+in_features = len(list(train_dataset.__getitem__(0)[0]))
+model = ANN(Layers=[in_features, 10, 10, 1])    
+
+criterion = nn.MSELoss()
+optimizer = torch.optim.SGD(model.parameters(), lr=0.01)
+
+results = train(train_loader, validation_loader, model,
+                criterion, optimizer, epochs=100, display_batch=False)
+
+
+### Analyze Results ###
+
