@@ -5,7 +5,6 @@ Diagrams: inkscape.
 Report: Jupyter Notebook and Medium post (theory/method/citations and key findings).
 
 To do:
-- Training function
 - Shuffle training for time series/stocks (read and cite, post stack exchange and ask literature).
 - isort
 - Run simplest architecture and Analyze results.
@@ -47,59 +46,41 @@ test_loader = DataLoader(dataset=test_dataset, batch_size=32, shuffle=False)
 model = ANN(Layers=[train_dataset.n_samples, 10, 10, 1])
 
 
-### Training function ### (move to FinML.py)
+### Training function ### (move to FinML.py)       
 
-def train(Y, X, model, criterion, optimizer, , epochs=20):
-    
-    error = [] # loss at a given epoch    
-    
-    for epoch in range(epochs):        
-        total = 0 # loss for entire data set for one epoch.
-        
-        # Do one full fwd and bckwd pass on entire data set.
-        for y, x in zip(Y, X):
+def train(train_loader, validation_loader, model, criterion, optimizer, epochs=2, display_batch=False):
+    """
+        Make sure errors represent what you want.
+        Move to FinML
+        Training and testing errors should be on the same scale
+        Write description.
+    """
+    loss = {'training loss': [],'validation error': []}   # loss at a given epoch        
+    for epoch in range(epochs):
+         
+        total = 0 # training loss for every epoch        
+        for batch_idx, (x, y) in enumerate(train_loader):             
+            if display_batch: 
+              print('Training: epoch {}, batch idx {} , batch len {}'.format(epoch, batch_idx, len(y)))              
+            model.train()
+            optimizer.zero_grad()
             loss = criterion(model(x), y)
             loss.backward()
             optimizer.step()
-            optimizer.zero_grad()
-            total += loss.item()  #cumulative loss 
-            
-        error.append(total)  
+            total += loss.item()  # cumulative loss    
+            # Tensorboard and/or plot training
+        loss['training loss'].append(total) 
         
-    return error
-       
-def train(model, criterion, train_loader, test_loader, optimizer, epochs, display_batch=false):
-    
-    i = 0
-    loss = {'training_loss': [],'validation MSE': []}  
-    
-    for epoch in range(epochs):
-        
-        for batch_idx, (x, y) in enumerate(train_loader):             
-            if display_batch : 
-              print('epoch {}, batch_idx {} , batch len {}'.format(epoch, batch_idx, len(y)))    
-              
-            model.train()
-            optimizer.zero_grad()
-            z = model(x.view(-1, 28 * 28))
-            loss = criterion(z, y)
-            loss.backward()
-            optimizer.step()
-              #loss for every iteration
-            error['training_loss'].append(loss.data.item())
-        correct = 0
-        
-        # Tensorboard + plot training
-        for i, (x, y) in enumerate(validation_loader):
+        total = 0 # validation loss for every epoch        
+        for batch_idx, (x, y) in enumerate(validation_loader):
+            if display_batch: 
+              print('Validation: epoch {}, batch idx {} , batch len {}'.format(epoch, batch_idx, len(y)))            
             model.eval()
-            z = model(x)
-	      error = criterion(z, y)
-            print(i)
-            print('Predicted: ',z.item())
-	      print('Actual: ', y.item())
-   	      print('Loss: ', loss.item())
-            loss['MSE?/RMSE? read which'].append(error)
-          # Tensorboard + plot training
+            total += criterion(model(x), y).item()  # cumulative loss 
+            # Tensorboard and/or plot training
+        #loss['validation error'].append((100 * (total / len(validation_loader)))          
+        loss['validation error'].append(total)          
+          
     return loss 
 
 
