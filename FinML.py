@@ -52,9 +52,13 @@ class DataSupervised(Dataset):
         if train:
             self.X = torch.FloatTensor(stock_supervised[::2,:-target_cols])
             self.Y = torch.FloatTensor(stock_supervised[::2,-target_cols])
+            if target_cols == 1:
+                self.Y = self.Y.unsqueeze(1)            
         else:
-            self.X = torch.FloatTensor(stock_supervised[1::2,:-target_cols])
+            self.X = torch.FloatTensor(stock_supervised[1::2,:-target_cols])     
             self.Y = torch.FloatTensor(stock_supervised[1::2,-target_cols])
+            if target_cols == 1:
+                self.Y = self.Y.unsqueeze(1)                   
             
         self.n_samples = self.X.shape[0]
         
