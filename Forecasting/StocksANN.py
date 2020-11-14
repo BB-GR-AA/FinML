@@ -1,12 +1,17 @@
 '''
-Training: google collab/cloud (IBM, google, AWS, Microsoft).
-Visualization: TensorBoard.
-Diagrams: inkscape.
-Report: Jupyter Notebook (theory/method/citations and key findings).
-
 Lunes:
-- isort and Analyze results (train/test error) make sure they make sense (colud visualize predicted prices)
-- Jupyter notebook (follow IBM notes and IBM notebooks markdown) save model and load.
+- Why batches and How does gradietn get computed with batches?
+- isort. make sure test and training functions are working and move to FinMl.
+- Analyze results (train/test error) compare with IBM PyTorch (candles plot of predicted prices) save model and load.
+- Jupyter notebook (follow IBM notes and IBM notebooks markdown) .
+
+Noviembre:
+- Cite transformations to standardize (try price difference P_i-p_{i-1} (input and max min scaler ooutput) univariate time series forecasting using neural networks, implement in dataset and run again.
+- Change input size (cite stocks/timeseries study) Make wider and deeper (read and cite, ask stack exchange and ask literature) run and analyze.
+- tanh with default vs tanh with xavier vs relu with He (loss and validations plots IBM notebooks, read and cite papers).
+- drop out (IBM notebooks read and cite: Dropout: a simple way to prevent neural networks from overfitting)
+- batch normalization vs dropout (5.3 lab).
+
 '''
 
 import sys
@@ -31,7 +36,6 @@ def test_series(test_loader, model, criterion):
     with torch.no_grad():
         for batch_idx, (x, y) in enumerate(test_loader):
             error += criterion(model(x), y).item()  
-            # Tensorboard and/or plot training
             #100 * (total / len(validation_loader))      
     model.train()
           
@@ -60,7 +64,6 @@ def train_series(train_loader, model, criterion, optimizer, epochs=10, display_b
             loss.backward()
             optimizer.step()
             total += loss.item()  # cumulative loss    
-            # Tensorboard and/or plot training
         results['training loss'].append(total) 
         
     if test_loader is not None:
@@ -72,7 +75,7 @@ def train_series(train_loader, model, criterion, optimizer, epochs=10, display_b
 ### Hyperparameters ###
 
 learning_rate = 0.001
-batch_size = 1
+batch_size = 32
 num_epochs = 2
 
 
@@ -81,8 +84,8 @@ num_epochs = 2
 train_dataset = DataSupervised(file_name="../Data/ANET_2014-06-06_2020-08-18_supervised_lag_21.csv")
 validation_dataset = DataSupervised(file_name="../Data/ANET_2014-06-06_2020-08-18_supervised_lag_21.csv", train=False)
 
-train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
-validation_loader = DataLoader(dataset=validation_dataset, batch_size=batch_size, shuffle=False)
+train_loader = DataLoader(train_dataset, batch_size, shuffle=True)
+validation_loader = DataLoader(validation_dataset, batch_size, shuffle=False)
 
 in_features = len(list(train_dataset.__getitem__(0)[0]))
 out_features = len(list(train_dataset.__getitem__(0)[1]))
