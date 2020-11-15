@@ -7,6 +7,7 @@ import pandas as pd
 import torch
 import torch.nn as nn
 from alpha_vantage.timeseries import TimeSeries
+from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset
 
 
@@ -48,15 +49,15 @@ class DataSupervised(Dataset):
     def __init__(self, file_name, target_cols=1, train=True):
         
         stock_supervised = pd.read_csv(file_name).values
-                
+        X_train, X_test = train_test_split(stock_supervised,test_size=0.2)         
         if train:
-            self.X = torch.FloatTensor(stock_supervised[::2,:-target_cols])
-            self.Y = torch.FloatTensor(stock_supervised[::2,-target_cols])
+            self.X = torch.FloatTensor(X_train[:,:-target_cols])
+            self.Y = torch.FloatTensor(X_train[:,-target_cols])
             if target_cols == 1:
                 self.Y = self.Y.unsqueeze(1)            
         else:
-            self.X = torch.FloatTensor(stock_supervised[1::2,:-target_cols])     
-            self.Y = torch.FloatTensor(stock_supervised[1::2,-target_cols])
+            self.X = torch.FloatTensor(X_test[:,:-target_cols])     
+            self.Y = torch.FloatTensor(X_test[:,-target_cols])
             if target_cols == 1:
                 self.Y = self.Y.unsqueeze(1)                   
             
