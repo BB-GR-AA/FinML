@@ -79,9 +79,55 @@ def GetHistoricalData_AV(API_Key, symbol='IBM'):
     return data
 
 
-def standardize(data):
-    ''' Center data to the mean and element wise scale to unit variance.'''
-    return (data - data.mean()) / data.std()
+def test_series(test_loader, model, criterion):
+    """ test a a time-series model, returns the error.
+    
+    test_loader -- DataLoader object with the test dataset.
+    model -- Neural Network to be evaaluated.
+    criterion -- Loss function.
+    """        
+    
+    model.eval()
+    error = 0   
+    with torch.no_grad():
+        for batch_idx, (x, y) in enumerate(test_loader):
+            error += criterion(model(x), y).item()   # cummulative error/batch
+    model.train()
+
+    return error / batch_idx # ~ error over all testing samples
+
+
+def train_series(train_loader, model, criterion, optimizer, epochs=10, test_loader=None, display_batch=False):
+    """Train and test (optional) a time-series model, returns the loss at a given epoch.
+
+    train_loader -- DataLoader object with the training dataset.
+    model -- Neural Network to be trained.
+    criterion -- Loss function.
+    optimizer -- optimization algorithm to update the network weights.
+    epochs -- Number of forward and backward passes on the whole dataset.
+    test_loader -- DataLoader object with the test dataset (default None).
+    display_batch -- Display epoch, bactch index and batch length (default False).
+    """
+    
+    model.train()
+    results = {'training loss': [], 'validation error': []}   # loss at a given epoch        
+    for epoch in range(epochs):
+         
+        total = 0 # training loss for every epoch        
+        for batch_idx, (x, y) in enumerate(train_loader):             
+            if display_batch: 
+              print('epoch {}, batch idx {} , batch len {}'.format(epoch, batch_idx, len(y)))              
+            optimizer.zero_grad()
+            loss = criterion(model(x), y)
+            loss.backward()
+            optimizer.step()
+            total += loss.item()  # cummulative loss/batch
+        results['training loss'].append(total/batch_idx) # ~ loss over all training samples
+        
+        if test_loader is not None:
+            results['validation error'].append(test_series(test_loader, model, criterion))
+        
+    return results
 
 
 def plot_trainning(X, Y, model, epoch, leg=True, x_label='x', y_label='y'):
