@@ -1,9 +1,8 @@
 '''
-and move functions to FinMl.
 - Jupyter notebook (IBM notebooks). MSE formula for training/testing batches.
-- try largest dataset
 - Diagram of data splits. Add code snippets fomr FinML.
 - candles plot of actual and predicted prices. save model and load.
+- try largest dataset
 - Why batches and how does loss and gradient get computed with batches? isort.
 
 Noviembre:
@@ -19,12 +18,12 @@ import sys
 sys.path.append('../')
 import torch.nn as nn
 import torch.optim
-from FinML import ANN
-from FinML import DataSupervised
+import FinML
+from FinML import ANN, DataSupervised
 from torch.utils.data import DataLoader
 
 
-### Training/Testing functions ### (move to FinML.py)   
+### Training/Testing functions ### 
 
 # plot training 
 #print model parameters
@@ -55,36 +54,11 @@ model = ANN(Layers=[in_features, 10, 10, out_features])
 criterion = nn.MSELoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 
-results = train_series(train_loader, model, criterion, optimizer, num_epochs,
+results = FinML.train_series(train_loader, model, criterion, optimizer, num_epochs,
                        validation_loader, display_batch=False)
 
 
 ### Analyze Results ###
 
-# Plot the loss and MSE (make a function and move to finML)
-
-def plot_results_regression(results, units, test=True):
-    """Plot of training and/or testing results.
-    
-    results -- A dictionary with keys: 'training loss', 'validation error'
-    units -- Units to be displayed in the y-axis.
-    test -- display validation results (default False).
-    """
-
-    fig, ax1 = plt.subplots()
-    color = 'tab:red'
-    ax1.plot(results['training loss'], color)
-    ax1.set_xlabel('epoch', color='k')
-    ax1.set_ylabel('training loss ('+units+')', color=color)
-    ax1.tick_params(axis='y', color=color)
-
-    if test:    
-        ax2 = ax1.twinx()  
-        color = 'tab:blue'
-        ax2.plot(results['validation error'], color)
-        ax2.set_xlabel('epoch', color='k')
-        ax2.set_ylabel('validation error ('+units+')', color=color) 
-        ax2.tick_params(axis='y', color=color)
-        fig.tight_layout()
-
-plot_results_regression(results, units='$')
+# Save image for notebook
+FinML.plot_results_regression(results, units='$')

@@ -1,6 +1,5 @@
-'''
-Module with useful functions and classes.
-'''
+""" Module with useful functions and classes."""
+
 
 import matplotlib.pyplot as plt 
 import pandas as pd
@@ -12,12 +11,13 @@ from torch.utils.data import Dataset
 
 
 class ANN(nn.Module):
-    '''
+    """Artificial Neural Network
+    
         MLP with tanh activation function for the hidden layers and linear transformation
         for the output layer by default.
         
-        Layers (list): Numbers of neurons in each layer.
-    ''' 
+        Layers -- (list) Numbers of neurons in each layer.
+    """
     
     def __init__(self, Layers):
         super(ANN, self).__init__()  
@@ -68,8 +68,43 @@ class DataSupervised(Dataset):
     
     def __len__(self):
         return self.n_samples     
+
+
+def GetHistoricalData_AV(API_Key, symbol='IBM'):
+    """Historical stock data as a pandas DataFrame."""
+    
+    ts = TimeSeries(key=API_Key,output_format='pandas')
+    data, meta_data = ts.get_daily(symbol=symbol, outputsize='full')
+    data.columns = ['open','high','low','close','volume']
+    data.sort_values(by='date', ascending=True, inplace=True)
+    return data
     
     
+def plot_results_regression(results, units, test=True):
+    """Plot of training and/or testing results.
+    
+    results -- A dictionary with keys: 'training loss', 'validation error'
+    units -- Units to be displayed in the y-axis.
+    test -- display validation results (default False).
+    """
+
+    fig, ax1 = plt.subplots()
+    color = 'tab:red'
+    ax1.plot(results['training loss'], color)
+    ax1.set_xlabel('epoch', color='k')
+    ax1.set_ylabel('training loss ('+units+')', color=color)
+    ax1.tick_params(axis='y', color=color)
+
+    if test:    
+        ax2 = ax1.twinx()  
+        color = 'tab:blue'
+        ax2.plot(results['validation error'], color)
+        ax2.set_xlabel('epoch', color='k')
+        ax2.set_ylabel('validation error ('+units+')', color=color) 
+        ax2.tick_params(axis='y', color=color)
+        fig.tight_layout()
+        
+
 def test_series(test_loader, model, criterion):
     """ test a a time-series model, returns the error.
     
@@ -86,16 +121,6 @@ def test_series(test_loader, model, criterion):
     model.train()
 
     return error / batch_idx # ~ error over all testing samples
-
-
-def GetHistoricalData_AV(API_Key, symbol='IBM'):
-    """Historical stock data as a pandas DataFrame."""
-    
-    ts = TimeSeries(key=API_Key,output_format='pandas')
-    data, meta_data = ts.get_daily(symbol=symbol, outputsize='full')
-    data.columns = ['open','high','low','close','volume']
-    data.sort_values(by='date', ascending=True, inplace=True)
-    return data
 
 
 def train_series(train_loader, model, criterion, optimizer, epochs=10, test_loader=None, display_batch=False):
@@ -129,19 +154,6 @@ def train_series(train_loader, model, criterion, optimizer, epochs=10, test_load
             results['validation error'].append(test_series(test_loader, model, criterion))
         
     return results
-
-
-def plot_trainning(X, Y, model, epoch, leg=True, x_label='x', y_label='y'):
-    ''' This function produces a plot of the predicted values and the training dataset.'''
-    plt.plot(X.numpy(), model(X).detach().numpy(), label=('epoch ' + str(epoch)))
-    plt.plot(X.numpy(), Y.numpy(), 'r', label='training dataset')
-    plt.xlabel(x_label)
-    plt.ylabel(y_label)
-    if leg == True:
-        plt.legend()
-    else:
-        pass
-    plt.show()
 
 
 def print_model_parameters(model):
