@@ -68,17 +68,8 @@ class DataSupervised(Dataset):
     
     def __len__(self):
         return self.n_samples     
-
-
-def GetHistoricalData_AV(API_Key, symbol='IBM'):
-    '''Historical stock data as a pandas DataFrame. '''
-    ts = TimeSeries(key=API_Key,output_format='pandas')
-    data, meta_data = ts.get_daily(symbol=symbol, outputsize='full')
-    data.columns = ['open','high','low','close','volume']
-    data.sort_values(by='date', ascending=True, inplace=True)
-    return data
-
-
+    
+    
 def test_series(test_loader, model, criterion):
     """ test a a time-series model, returns the error.
     
@@ -95,6 +86,16 @@ def test_series(test_loader, model, criterion):
     model.train()
 
     return error / batch_idx # ~ error over all testing samples
+
+
+def GetHistoricalData_AV(API_Key, symbol='IBM'):
+    """Historical stock data as a pandas DataFrame."""
+    
+    ts = TimeSeries(key=API_Key,output_format='pandas')
+    data, meta_data = ts.get_daily(symbol=symbol, outputsize='full')
+    data.columns = ['open','high','low','close','volume']
+    data.sort_values(by='date', ascending=True, inplace=True)
+    return data
 
 
 def train_series(train_loader, model, criterion, optimizer, epochs=10, test_loader=None, display_batch=False):
