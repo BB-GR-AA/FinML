@@ -156,7 +156,9 @@ def train_series(train_loader, model, criterion, optimizer, epochs=10, test_load
     return results
 
 
-def print_model_parameters(model):
+def model_parameters_shape(model):
+    """Display the parameters shape in each layer"""
+    
     count = 0
     for ele in model.state_dict():
         count += 1

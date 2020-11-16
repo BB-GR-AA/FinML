@@ -13,7 +13,6 @@ Noviembre:
 - batch normalization vs dropout (5.3 lab).
 '''
 
-import matplotlib.pyplot as plt
 import sys
 sys.path.append('../')
 import torch.nn as nn
@@ -22,12 +21,6 @@ import FinML
 from FinML import ANN, DataSupervised
 from torch.utils.data import DataLoader
 
-
-### Training/Testing functions ### 
-
-# plot training 
-#print model parameters
-        
 
 ### Hyperparameters ###
 
@@ -50,7 +43,8 @@ out_features = len(list(train_dataset.__getitem__(0)[1]))
 
 ### Train and Test the Model ###
 
-model = ANN(Layers=[in_features, 10, 10, out_features])   
+model = ANN(Layers=[in_features, 10, 10, out_features])  
+FinML.model_parameters_shape(model) 
 criterion = nn.MSELoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 
