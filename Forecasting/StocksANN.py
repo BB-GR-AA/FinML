@@ -1,9 +1,8 @@
 '''
-- Jupyter notebook (IBM notebooks). MSE formula for training/testing batches.
-- Diagram of data splits. Add code snippets fomr FinML.
-- candles plot of actual and predicted prices. save model and load.
+- Diagram of data splits.
+- candles plot of actual and predicted prices.
 - try largest dataset
-- Why batches and how does loss and gradient get computed with batches? isort.
+- How does loss and gradient get computed with batches? isort.
 
 Noviembre:
 - Cite transformations to standardize (try price difference P_i-p_{i-1} (input and max min scaler ooutput) univariate time series forecasting using neural networks, implement in dataset and run again.
